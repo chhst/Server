@@ -1,6 +1,3 @@
-local ServerScriptService = game:GetService("ServerScriptService")
-
-local CharacterRegistry = require(ServerScriptService.Modules.CharacterRegistry)
 
 local TeamService = {}
 
@@ -33,8 +30,7 @@ function TeamService:GetSelectedCharacter(player, role)
 		return playerData[role]
 	end
 
-	local defaultCharacter = CharacterRegistry:GetDefault(role)
-	return defaultCharacter and defaultCharacter.Id or nil
+
 end
 
 function TeamService:ClearRoundData()
