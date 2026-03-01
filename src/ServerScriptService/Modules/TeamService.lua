@@ -1,3 +1,4 @@
+
 local TeamService = {}
 
 TeamService.PlayerRoles = {}
@@ -29,11 +30,7 @@ function TeamService:GetSelectedCharacter(player, role)
 		return playerData[role]
 	end
 
-	if role == "Killer" then
-		return "Slasher"
-	end
 
-	return "Scout"
 end
 
 function TeamService:ClearRoundData()

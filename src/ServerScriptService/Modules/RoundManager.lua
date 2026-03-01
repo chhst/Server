@@ -1,11 +1,8 @@
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local TeamService = require(script.Parent.TeamService)
 local MorphService = require(script.Parent.MorphService)
 local AbilityService = require(script.Parent.AbilityService)
-
-local CharacterCatalog = require(ReplicatedStorage.Config.Characters.CharacterCatalog)
 
 local RoundManager = {}
 RoundManager.__index = RoundManager
@@ -60,7 +57,7 @@ function RoundManager:ApplyMorphs(players)
 	for _, player in ipairs(players) do
 		local role = TeamService:GetRole(player)
 		local chosenCharacterId = TeamService:GetSelectedCharacter(player, role)
-		local characterData = CharacterCatalog:Get(role, chosenCharacterId)
+
 		MorphService:ApplyMorph(player, characterData)
 		AbilityService:RegisterPlayerLoadout(player, characterData)
 	end
