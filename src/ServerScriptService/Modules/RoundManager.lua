@@ -1,27 +1,14 @@
 local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
-local ServerScriptService = game:GetService("ServerScriptService")
+
 
 local TeamService = require(script.Parent.TeamService)
 local MorphService = require(script.Parent.MorphService)
 local AbilityService = require(script.Parent.AbilityService)
-local CharacterRegistry = require(ServerScriptService.Modules.CharacterRegistry)
-local MusicSystem = require(script.Parent.MusicSystem)
+
 
 local RoundManager = {}
 RoundManager.__index = RoundManager
 
-local function teleportCharacterToPart(player, part)
-	if not part then
-		return
-	end
-
-	local character = player.Character
-	local root = character and character:FindFirstChild("HumanoidRootPart")
-	if root then
-		root.CFrame = part.CFrame + Vector3.new(0, 4, 0)
-	end
-end
 
 function RoundManager:Init(config)
 	self.Config = config
@@ -29,11 +16,7 @@ function RoundManager:Init(config)
 	self.RoundActive = false
 	self.CurrentKiller = nil
 	self.RoundStartedAt = 0
-	self.RoundPart = Workspace:FindFirstChild("RoundPart")
-	self.SpawnLocation = Workspace:FindFirstChildOfClass("SpawnLocation")
 
-	AbilityService:Init(config.RoundStateRemote)
-	MusicSystem:Init(config.RoundStateRemote)
 
 	Players.PlayerRemoving:Connect(function(leavingPlayer)
 		if leavingPlayer == self.CurrentKiller then
@@ -72,42 +55,7 @@ function RoundManager:AssignRoles(players)
 	TeamService:AssignRoles(players, self.CurrentKiller)
 end
 
-function RoundManager:ApplyRoundCharacters(players)
-	local aktep = CharacterRegistry:GetAKTEP()
 
-	for _, player in ipairs(players) do
-		local role = TeamService:GetRole(player)
-		local characterData
-
-		if role == "Killer" then
-			characterData = aktep
-		elseif role == "Survivor" then
-			characterData = CharacterRegistry:GetRandomSurvivor()
-		end
-
-		if characterData then
-			MorphService:ApplyMorphByModel(player, characterData.Role, characterData.ModelPath, {
-				MaxHealth = characterData.Stats.HP,
-				WalkSpeed = characterData.Stats.Speed,
-			})
-			TeamService:SetRoundCharacter(player, characterData)
-			AbilityService:RegisterPlayerLoadout(player, role, characterData)
-		end
-
-		self:BroadcastState({
-			state = "ROLE_ASSIGNED",
-			player = player.Name,
-			role = role,
-			characterId = characterData and characterData.Id or nil,
-		})
-	end
-
-	MusicSystem:StartRound(self.CurrentKiller, aktep)
-end
-
-function RoundManager:TeleportAllToRoundPart()
-	for _, player in ipairs(Players:GetPlayers()) do
-		teleportCharacterToPart(player, self.RoundPart)
 	end
 end
 
@@ -121,7 +69,7 @@ function RoundManager:IntermissionTick()
 		self:BroadcastState({
 			state = self.State,
 			remaining = remaining,
-			timerLabel = string.format("Intermission: %d", remaining),
+
 			minimumPlayers = self.Config.MinimumPlayers,
 			currentPlayers = #Players:GetPlayers(),
 		})
@@ -142,14 +90,6 @@ function RoundManager:RunRoundTimer()
 		self:BroadcastState({
 			state = self.State,
 			remaining = remaining,
-			timerLabel = string.format("Round: %d", remaining),
-			killer = self.CurrentKiller and self.CurrentKiller.Name,
-		})
-
-		local alive = self:GetAlivePlayers()
-		MusicSystem:Update(alive, function(player)
-			return TeamService:GetRole(player)
-		end)
 
 		if self:IsRoundOver() then
 			break
@@ -193,19 +133,7 @@ end
 function RoundManager:PrepareRound()
 	local players = Players:GetPlayers()
 	self:AssignRoles(players)
-	self:ApplyRoundCharacters(players)
-	self:TeleportAllToRoundPart()
-end
 
-function RoundManager:ReturnPlayersToLobby()
-	for _, player in ipairs(Players:GetPlayers()) do
-		player:LoadCharacter()
-		local character = player.Character or player.CharacterAdded:Wait()
-		local root = character:FindFirstChild("HumanoidRootPart")
-		if root and self.SpawnLocation then
-			root.CFrame = self.SpawnLocation.CFrame + Vector3.new(0, 4, 0)
-		end
-	end
 end
 
 function RoundManager:EndRound(reason)
@@ -214,17 +142,14 @@ function RoundManager:EndRound(reason)
 	end
 
 	self.RoundActive = false
-	MusicSystem:StopRound()
+
 	AbilityService:ClearAllLoadouts()
 	TeamService:ClearRoundData()
 
 	self:BroadcastState({
 		state = "POST_ROUND",
 		reason = reason,
-		timerLabel = "Intermission: 0",
-	})
 
-	self:ReturnPlayersToLobby()
 	task.wait(5)
 end
 
@@ -239,7 +164,7 @@ function RoundManager:StartLoop()
 			else
 				self:BroadcastState({
 					state = "WAITING_FOR_PLAYERS",
-					timerLabel = "Waiting for players...",
+
 					minimumPlayers = self.Config.MinimumPlayers,
 					currentPlayers = #Players:GetPlayers(),
 				})

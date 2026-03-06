@@ -1,19 +1,7 @@
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local Killers = {
-	require(ServerScriptService.CharacterDefinitions.Killers.AKTEP),
-	require(ServerScriptService.CharacterDefinitions.Killers.FleetwaySuperSonic),
-	require(ServerScriptService.CharacterDefinitions.Killers.ManiacSuperSonic),
-	require(ServerScriptService.CharacterDefinitions.Killers.Kolossos),
-}
 
-local Survivors = {
-	require(ServerScriptService.CharacterDefinitions.Survivors.Sonic),
-	require(ServerScriptService.CharacterDefinitions.Survivors.Tails),
-	require(ServerScriptService.CharacterDefinitions.Survivors.Knuckles),
-	require(ServerScriptService.CharacterDefinitions.Survivors.Amy),
-	require(ServerScriptService.CharacterDefinitions.Survivors.Silver),
-	require(ServerScriptService.CharacterDefinitions.Survivors.Blaze),
 }
 
 local byRoleAndId = {
@@ -53,16 +41,5 @@ function CharacterRegistry:GetDefault(role)
 	return all[1]
 end
 
-function CharacterRegistry:GetRandomSurvivor()
-	local all = self:GetAll("Survivor")
-	if #all == 0 then
-		return nil
-	end
-	return all[math.random(1, #all)]
-end
-
-function CharacterRegistry:GetAKTEP()
-	return byRoleAndId.Killer.AKTEP
-end
 
 return CharacterRegistry
