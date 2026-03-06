@@ -1,13 +1,7 @@
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local Killers = {
-	require(ServerScriptService.CharacterDefinitions.Killers.Slasher),
-	require(ServerScriptService.CharacterDefinitions.Killers.Brute),
-}
 
-local Survivors = {
-	require(ServerScriptService.CharacterDefinitions.Survivors.Scout),
-	require(ServerScriptService.CharacterDefinitions.Survivors.Medic),
 }
 
 local byRoleAndId = {
@@ -46,5 +40,6 @@ function CharacterRegistry:GetDefault(role)
 	local all = self:GetAll(role)
 	return all[1]
 end
+
 
 return CharacterRegistry

@@ -1,8 +1,4 @@
 
-local TeamService = {}
-
-TeamService.PlayerRoles = {}
-TeamService.SelectedCharacters = {}
 
 function TeamService:AssignRoles(players, killer)
 	self.PlayerRoles = {}
@@ -19,22 +15,12 @@ function TeamService:GetRole(player)
 	return self.PlayerRoles[player.UserId]
 end
 
-function TeamService:SetSelectedCharacter(player, role, characterId)
-	self.SelectedCharacters[player.UserId] = self.SelectedCharacters[player.UserId] or {}
-	self.SelectedCharacters[player.UserId][role] = characterId
-end
-
-function TeamService:GetSelectedCharacter(player, role)
-	local playerData = self.SelectedCharacters[player.UserId]
-	if playerData and playerData[role] then
-		return playerData[role]
-	end
-
 
 end
 
 function TeamService:ClearRoundData()
 	self.PlayerRoles = {}
+
 end
 
 return TeamService

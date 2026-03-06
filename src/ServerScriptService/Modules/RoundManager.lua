@@ -1,11 +1,14 @@
 local Players = game:GetService("Players")
 
+
 local TeamService = require(script.Parent.TeamService)
 local MorphService = require(script.Parent.MorphService)
 local AbilityService = require(script.Parent.AbilityService)
 
+
 local RoundManager = {}
 RoundManager.__index = RoundManager
+
 
 function RoundManager:Init(config)
 	self.Config = config
@@ -14,7 +17,6 @@ function RoundManager:Init(config)
 	self.CurrentKiller = nil
 	self.RoundStartedAt = 0
 
-	AbilityService:Init(config.RoundStateRemote)
 
 	Players.PlayerRemoving:Connect(function(leavingPlayer)
 		if leavingPlayer == self.CurrentKiller then
@@ -53,13 +55,7 @@ function RoundManager:AssignRoles(players)
 	TeamService:AssignRoles(players, self.CurrentKiller)
 end
 
-function RoundManager:ApplyMorphs(players)
-	for _, player in ipairs(players) do
-		local role = TeamService:GetRole(player)
-		local chosenCharacterId = TeamService:GetSelectedCharacter(player, role)
 
-		MorphService:ApplyMorph(player, characterData)
-		AbilityService:RegisterPlayerLoadout(player, characterData)
 	end
 end
 
@@ -73,6 +69,7 @@ function RoundManager:IntermissionTick()
 		self:BroadcastState({
 			state = self.State,
 			remaining = remaining,
+
 			minimumPlayers = self.Config.MinimumPlayers,
 			currentPlayers = #Players:GetPlayers(),
 		})
@@ -93,8 +90,6 @@ function RoundManager:RunRoundTimer()
 		self:BroadcastState({
 			state = self.State,
 			remaining = remaining,
-			killer = self.CurrentKiller and self.CurrentKiller.Name,
-		})
 
 		if self:IsRoundOver() then
 			break
@@ -138,7 +133,7 @@ end
 function RoundManager:PrepareRound()
 	local players = Players:GetPlayers()
 	self:AssignRoles(players)
-	self:ApplyMorphs(players)
+
 end
 
 function RoundManager:EndRound(reason)
@@ -147,17 +142,13 @@ function RoundManager:EndRound(reason)
 	end
 
 	self.RoundActive = false
+
 	AbilityService:ClearAllLoadouts()
 	TeamService:ClearRoundData()
 
 	self:BroadcastState({
 		state = "POST_ROUND",
 		reason = reason,
-	})
-
-	for _, player in ipairs(Players:GetPlayers()) do
-		player:LoadCharacter()
-	end
 
 	task.wait(5)
 end
@@ -173,6 +164,7 @@ function RoundManager:StartLoop()
 			else
 				self:BroadcastState({
 					state = "WAITING_FOR_PLAYERS",
+
 					minimumPlayers = self.Config.MinimumPlayers,
 					currentPlayers = #Players:GetPlayers(),
 				})
